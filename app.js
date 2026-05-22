@@ -1,8 +1,11 @@
 const map = new maplibregl.Map({
     container: 'map',
-    style: 'https://demotiles.maplibre.org/globe.json',
-    center: [0, 0],
-    zoom: 1
+    style: 'https://api.maptiler.com/maps/streets-v4/style.json?key=QjCZXnsGZAfLPiMGCTBy',
+    center: [29.2228, -1.6792], // Zooming sur Goma
+    zoom: 12,
+    attributionControl: false
 })
 
-map.addControl(new maplibregl.NavigationControl())
+map.addControl(new maplibregl.AttributionControl({
+    compact: true
+}), 'bottom-left');
