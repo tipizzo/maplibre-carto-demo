@@ -9,3 +9,4 @@ const map = new maplibregl.Map({
 map.addControl(new maplibregl.AttributionControl({
     compact: true
 }), 'bottom-left');
+
