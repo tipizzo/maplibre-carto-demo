@@ -76,6 +76,31 @@ function performSearch(query) {
     const value = query.trim();
     if (!value) return;
 
+    // Recherche par coordonnées
+
+    // Pourquoi du regex ? C'est pour detecter si la saisie ressemble à "lat, lng" ou "lng, lat" +ve ou -ve
+    const coordRegex = /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/;
+    const match = value.match(coordRegex);
+
+    if(match) {
+        const lat = parseFloat(match[1]);
+        const lng = parseFloat(match[2]);
+
+        if(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            map.flyTo({
+                center: [lng, lat],
+                zoom: 18,
+                essential: true
+            });
+            return; // La fonction s'arrete si la recherche reussie
+        } else {
+            alert("Coordonnées invalides");
+            return;
+        }
+    }
+
+    // Recherche par gref
+
     const features = map.querySourceFeatures('goma-buildings');
 
     const targetBuilding = features.find(f => f.properties.gref && String(f.properties.gref) === value);
@@ -100,7 +125,7 @@ function performSearch(query) {
         }
 
         else {
-            alert('Batiment introuvable pour: "${value}')
+            alert(`Batiment introuvable pour: ${value}`)
         }
     }
 }
