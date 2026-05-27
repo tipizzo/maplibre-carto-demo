@@ -8,10 +8,6 @@ const map = new maplibregl.Map({
     attributionControl: false
 })
 
-map.addControl(new maplibregl.AttributionControl({
-    compact: true
-}), 'bottom-left');
-
 map.on('load', () => {
     map.addSource('goma-buildings', {
         type: 'geojson',
@@ -56,8 +52,27 @@ map.on('load', () => {
         }
     })
 
-    // Afficher les info du batiment via une popup lorsqu;on y clique
+    map.addControl(new maplibregl.NavigationControl(), 'top-left'); // Zoom + / -
+    map.addControl(new maplibregl.GeolocateControl({
+        positionOptions: {
+            enableHighAccuracy: true // Usage du gps du device
+        },
+        trackUserLocation: true, // Suivre les mouvements du user
+        showUserLocation: true // Afficher le point bleu sur la map
+    }), 'top-left')
 
+    // MapBoxDrawer pour dessiner des polygones
+    const draw = new MapboxDraw({
+        displayControlsDefault: false,
+        controls: {
+            polygon: true,
+            trash: true
+        }
+    })
+
+    map.addControl(draw, 'top-right')
+
+    // Afficher les info du batiment via une popup lorsqu;on y clique
     map.on('click', 'buildings-layer', (e) => {
     const feature = e.features[0];
     if (!feature) return;
