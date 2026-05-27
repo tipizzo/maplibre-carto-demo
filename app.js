@@ -1,6 +1,8 @@
 const map = new maplibregl.Map({
     container: 'map',
-    style: 'https://api.maptiler.com/maps/streets-v4/style.json?key=QjCZXnsGZAfLPiMGCTBy',
+    // style: 'https://tiles.openfreemap.org/styles/bright', // Ceci est une version libre, legère qui ne demande pas de clé API pour le OpenStreetMap
+    style: 'https://api.maptiler.com/maps/streets-v4/style.json?key=QjCZXnsGZAfLPiMGCTBy', // OpenStreetMap fourni par MapTiler
+    // style: 'https://api.maptiler.com/maps/hybrid-v4/style.json?key=QjCZXnsGZAfLPiMGCTBy', // Satelite hybrid fourni par MapTiler
     center: [29.2228, -1.6792], // Localisation sur Goma
     zoom: 12,
     attributionControl: false
@@ -53,6 +55,51 @@ map.on('load', () => {
             'text-halo-width': 1.5
         }
     })
+
+    // Afficher les info du batiment via une popup lorsqu;on y clique
+
+    map.on('click', 'buildings-layer', (e) => {
+    const feature = e.features[0];
+    if (!feature) return;
+
+    const gref = feature.properties.gref || "Non renseigné";
+    const isEligible = feature.properties.is_eligible;
+
+
+    let eligibilityText = "";
+    if (isEligible === "true" || isEligible === true) {
+        eligibilityText = '<strong style="color: #31b96a;">Le bâtiment est éligible</strong>';
+    } else if (isEligible === "false" || isEligible === false) {
+        eligibilityText = '<strong style="color: #e74c3c;">Le bâtiment n\'est pas éligible</strong>';
+    } else {
+        eligibilityText = '<strong style="color: #95a5a6;">Statut inconnu</strong>';
+    }
+
+    const htmlContent = `
+        <div style="font-family: sans-serif; padding: 5px;">
+            <h4 style="margin: 0 0 8px 0; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Infos Bâtiment</h4>
+            <p style="margin: 4px 0;"><strong>gref :</strong> ${gref}</p>
+            <p style="margin: 4px 0;">${eligibilityText}</p>
+        </div>
+    `;
+
+    // La popup
+    new maplibregl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(htmlContent)
+        .addTo(map);
+});
+
+    // Changement du curseur de la souris
+    map.on('mouseenter', 'buildings-layer', () => {
+        map.getCanvas().style.cursor = 'pointer'
+    })
+
+    map.on('mouseleave', 'buildings-layer', () => {
+        map.getCanvas().style.cursor = '';
+    })
+
+
 
     initSearchFeature();
 })
